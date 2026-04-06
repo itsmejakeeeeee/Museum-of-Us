@@ -7,95 +7,21 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,600;1,400&family=Montserrat:wght@200;400&display=swap" rel="stylesheet">
     <style>
-        :root {
-            --bg-color: #f8f6f2; 
-            --accent: #b08d57;    
-            --text: #1a1a1a;
-            --danger: #7a2a2a;
-        }
-
-        body {
-            background-color: var(--bg-color);
-            color: var(--text);
-            font-family: 'Montserrat', sans-serif;
-            scroll-behavior: smooth;
-            overflow-x: hidden; /* Prevent horizontal scroll */
-        }
-
+        :root { --bg-color: #f8f6f2; --accent: #b08d57; --text: #1a1a1a; }
+        body { background-color: var(--bg-color); color: var(--text); font-family: 'Montserrat', sans-serif; scroll-behavior: smooth; overflow-x: hidden; }
         .serif { font-family: 'Cormorant Garamond', serif; }
-
-        .hero-section {
-            min-height: 100vh;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            position: relative;
-            background: radial-gradient(circle, rgba(248,246,242,0) 0%, rgba(240,237,228,1) 100%);
-            padding: 20px;
-        }
-
-        .scroll-indicator {
-            position: absolute;
-            bottom: 40px;
-            left: 50%;
-            transform: translateX(-50%);
-            animation: bounce 2s infinite;
-        }
-
-        @keyframes bounce {
-            0%, 20%, 50%, 80%, 100% {transform: translateY(0) translateX(-50%);}
-            40% {transform: translateY(-10px) translateX(-50%);}
-        }
-
-        nav {
-            background: rgba(248, 246, 242, 0.8);
-            backdrop-filter: blur(10px);
-            z-index: 100;
-        }
-
-        .frame-container {
-            background: #ffffff;
-            padding: 12px 12px 45px 12px;
-            box-shadow: 0 10px 25px -5px rgba(0,0,0,0.1);
-            border: 1px solid #e5e5e5;
-            position: relative;
-            transition: transform 0.4s cubic-bezier(0.165, 0.84, 0.44, 1);
-        }
-
-        @media (min-width: 768px) {
-            .frame-container:hover { transform: translateY(-12px); }
-        }
-
-        .brass-plaque {
-            position: absolute;
-            bottom: 12px;
-            left: 50%;
-            transform: translateX(-50%);
-            background: linear-gradient(145deg, #e3c598 0%, #b08d57 100%);
-            color: #43331a;
-            padding: 2px 10px;
-            font-size: 0.55rem;
-            font-weight: 700;
-            border: 1px solid #8e6d3a;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            white-space: nowrap;
-        }
-
-        .modal-overlay {
-            background: rgba(15, 15, 15, 0.92);
-            backdrop-filter: blur(10px);
-            z-index: 200;
-            overflow-y: auto; /* Allow scrolling on small screens */
-        }
-
-        @keyframes fadeInUp {
-            from { opacity: 0; transform: translateY(40px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-
+        .hero-section { min-height: 100vh; display: flex; flex-direction: column; justify-content: center; align-items: center; position: relative; background: radial-gradient(circle, rgba(248,246,242,0) 0%, rgba(240,237,228,1) 100%); padding: 20px; }
+        .scroll-indicator { position: absolute; bottom: 40px; left: 50%; transform: translateX(-50%); animation: bounce 2s infinite; }
+        @keyframes bounce { 0%, 20%, 50%, 80%, 100% {transform: translateY(0) translateX(-50%);} 40% {transform: translateY(-10px) translateX(-50%);} }
+        nav { background: rgba(248, 246, 242, 0.8); backdrop-filter: blur(10px); z-index: 100; }
+        .frame-container { background: #ffffff; padding: 12px 12px 45px 12px; box-shadow: 0 10px 25px -5px rgba(0,0,0,0.1); border: 1px solid #e5e5e5; position: relative; transition: transform 0.4s cubic-bezier(0.165, 0.84, 0.44, 1); }
+        @media (min-width: 768px) { .frame-container:hover { transform: translateY(-12px); } }
+        .brass-plaque { position: absolute; bottom: 12px; left: 50%; transform: translateX(-50%); background: linear-gradient(145deg, #e3c598 0%, #b08d57 100%); color: #43331a; padding: 2px 10px; font-size: 0.55rem; font-weight: 700; border: 1px solid #8e6d3a; text-transform: uppercase; letter-spacing: 1px; white-space: nowrap; }
+        .modal-overlay { background: rgba(15, 15, 15, 0.92); backdrop-filter: blur(10px); z-index: 200; overflow-y: auto; }
+        @keyframes fadeInUp { from { opacity: 0; transform: translateY(40px); } to { opacity: 1; transform: translateY(0); } }
         .reveal { animation: fadeInUp 1.4s ease-out forwards; }
+        .delete-trigger { position: absolute; top: -10px; right: -10px; background: white; color: #b91c1c; width: 24px; height: 24px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 10px; opacity: 0; transition: all 0.3s ease; box-shadow: 0 4px 10px rgba(0,0,0,0.1); cursor: pointer; border: 1px solid #fee2e2; z-index: 50; }
+        .group:hover .delete-trigger { opacity: 1; }
     </style>
 </head>
 <body>
@@ -118,12 +44,8 @@
             <span class="text-[8px] md:text-[10px] uppercase tracking-[8px] md:tracking-[12px] text-[#b08d57] mb-4 md:mb-8 block">Private Exhibition No. 1</span>
             <h2 class="serif text-5xl sm:text-7xl md:text-9xl mb-6 italic font-light leading-tight">Carmen Elise</h2>
             <div class="w-12 md:w-16 h-[1px] bg-[#b08d57] mx-auto mb-6 md:mb-8"></div>
-            <p class="serif text-lg md:text-2xl italic text-gray-500 max-w-xl mx-auto leading-relaxed px-4">
-                "A visual study of timelessness, archived with love and intention."
-            </p>
-            <p class="text-[8px] md:text-[9px] uppercase tracking-[3px] md:tracking-[5px] mt-8 md:mt-12 text-gray-400 font-bold underline underline-offset-8 decoration-[#b08d57]/30">Benavidez Collection</p>
+            <p class="serif text-lg md:text-2xl italic text-gray-500 max-w-xl mx-auto leading-relaxed px-4">"A visual study of timelessness, archived with love and intention."</p>
         </div>
-        
         <a href="#gallery" class="scroll-indicator">
             <p class="text-[8px] uppercase tracking-[3px] mb-3 opacity-40">Scroll to Enter</p>
             <div class="w-[1px] h-12 md:h-16 bg-gradient-to-b from-[#b08d57] to-transparent mx-auto"></div>
@@ -134,72 +56,52 @@
         <div class="max-w-7xl mx-auto">
             <div class="flex flex-col md:flex-row justify-between items-center md:items-end mb-12 md:mb-20 border-b border-black/5 pb-8 text-center md:text-left">
                 <div class="serif italic text-3xl md:text-4xl">The Archive</div>
-                <div class="text-[8px] md:text-[9px] uppercase tracking-[3px] md:tracking-[4px] text-gray-400 mt-2 md:mt-0 italic">Preserving every shared second</div>
+                <div class="text-[8px] md:text-[9px] uppercase tracking-[3px] text-gray-400 mt-2 italic">Preserving every shared second</div>
             </div>
-            
             <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8 md:gap-14" id="galleryGrid"></div>
-            <div id="pagination" class="mt-20 flex justify-center items-center space-x-3"></div>
         </div>
     </section>
 
     <div id="uploadOverlay" class="fixed inset-0 modal-overlay flex items-center justify-center hidden p-4">
         <div class="bg-white p-8 md:p-12 max-w-md w-full shadow-2xl rounded-sm">
             <h3 class="serif text-3xl md:text-4xl mb-2 italic text-center">New Entry</h3>
-            <p class="text-[9px] uppercase tracking-widest text-center text-gray-400 mb-8 md:mb-10">Adding to Carmen's Collection</p>
-            <input type="text" id="captionInput" placeholder="Memory Title..." class="w-full border-b border-gray-200 py-4 mb-8 md:mb-10 focus:outline-none serif text-xl md:text-2xl bg-transparent focus:border-[#b08d57]">
+            <p class="text-[9px] uppercase tracking-widest text-center text-gray-400 mb-8 mb-10">Adding to Carmen's Collection</p>
+            <input type="text" id="captionInput" placeholder="Memory Title..." class="w-full border-b border-gray-200 py-4 mb-10 focus:outline-none serif text-xl md:text-2xl bg-transparent focus:border-[#b08d57]">
             <div class="flex space-x-4">
-                <button onclick="saveAndDisplay()" class="flex-1 bg-[#1a1a1a] text-white py-4 text-[10px] font-bold uppercase tracking-widest hover:bg-[#b08d57] transition">Confirm</button>
+                <button id="confirmBtn" onclick="saveAndDisplay()" class="flex-1 bg-[#1a1a1a] text-white py-4 text-[10px] font-bold uppercase tracking-widest hover:bg-[#b08d57] transition disabled:opacity-50">Confirm</button>
                 <button onclick="closeModals()" class="flex-1 bg-gray-100 py-4 text-[10px] font-bold uppercase tracking-widest text-gray-500">Discard</button>
             </div>
         </div>
     </div>
 
-    <div id="editOverlay" class="fixed inset-0 modal-overlay flex items-center justify-center hidden p-4">
-        <div class="bg-white p-8 md:p-12 max-w-md w-full shadow-2xl">
-            <h3 class="serif text-2xl md:text-3xl mb-1 italic text-center">Update Label</h3>
-            <p class="text-[9px] uppercase tracking-widest text-center text-gray-400 mb-8 md:mb-10">Refining the Archive</p>
-            <input type="text" id="editCaptionInput" class="w-full border-b border-gray-200 py-4 mb-8 md:mb-10 focus:outline-none serif text-xl md:text-2xl bg-transparent focus:border-[#b08d57]">
-            <div class="flex space-x-4">
-                <button id="saveEditBtn" class="flex-1 bg-[#b08d57] text-white py-4 text-[10px] font-bold uppercase tracking-widest">Save</button>
-                <button onclick="closeModals()" class="flex-1 bg-gray-100 py-4 text-[10px] font-bold uppercase tracking-widest text-gray-500">Back</button>
+    <div id="deleteOverlay" class="fixed inset-0 modal-overlay flex items-center justify-center hidden p-4">
+        <div class="bg-white p-8 md:p-12 max-w-md w-full shadow-2xl rounded-sm border-t-4 border-red-700">
+            <h3 class="serif text-3xl mb-2 italic text-center">Remove Piece?</h3>
+            <p class="text-[9px] uppercase tracking-widest text-center text-gray-400 mb-8">This will delete from the Archive and Google Drive</p>
+            <div class="flex space-x-4 mt-8">
+                <button id="deleteConfirmBtn" class="flex-1 bg-red-900 text-white py-4 text-[10px] font-bold uppercase tracking-widest hover:bg-red-800 transition">Remove Forever</button>
+                <button onclick="closeModals()" class="flex-1 bg-gray-100 py-4 text-[10px] font-bold uppercase tracking-widest text-gray-500">Keep It</button>
             </div>
         </div>
     </div>
 
-    <div id="decommissionOverlay" class="fixed inset-0 modal-overlay flex items-center justify-center hidden p-4">
-        <div class="bg-white p-8 md:p-12 max-w-md w-full shadow-2xl border-t-4 border-red-800">
-            <h3 class="serif text-2xl md:text-3xl mb-2 italic text-center">Empty the Walls?</h3>
-            <p class="text-[9px] md:text-[10px] leading-relaxed tracking-widest text-center text-gray-500 mb-8 md:mb-10 uppercase">
-                Warning: This will permanently delete the entire private collection.
-            </p>
-            <div class="flex flex-col space-y-3">
-                <button onclick="executeClear()" class="w-full bg-red-900 text-white py-4 text-[10px] font-bold uppercase tracking-widest hover:bg-red-700 transition">Confirm Decommission</button>
-                <button onclick="closeModals()" class="w-full bg-gray-100 py-4 text-[10px] font-bold uppercase tracking-widest text-gray-500">Keep Memories</button>
-            </div>
-        </div>
-    </div>
-
-    <footer class="bg-white py-16 md:py-24 text-center border-t border-gray-100 px-6">
-        <div class="serif text-xl md:text-2xl italic mb-4 size:[10]">Museum of Us</div>
-        <div class="w-12 h-[1px] bg-[#b08d57]/30 mx-auto mb-10"></div>
-        <button onclick="openDecommissionModal()" class="text-[8px] md:text-[9px] tracking-[3px] md:tracking-[4px] text-gray-300 hover:text-red-900 transition-all uppercase underline underline-offset-4">Decommission Gallery</button>
+    <footer class="bg-white py-16 text-center border-t border-gray-100 px-6">
+        <div class="serif text-xl italic mb-4">The Carmen Elise Benavidez Collection</div>
+        <p class="text-[8px] tracking-[4px] text-gray-300 uppercase italic">Archived with Love</p>
     </footer>
 
     <script>
+        const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzActcF77pRD63YBeLucpdC8Slz2eVsrQpowNS_bOJVdGDtAwMX6FghQ5XeaA7jPSl2hg/exec";
+        
         const imageInput = document.getElementById('imageInput');
         const captionInput = document.getElementById('captionInput');
-        const editCaptionInput = document.getElementById('editCaptionInput');
-        
         const uploadOverlay = document.getElementById('uploadOverlay');
-        const editOverlay = document.getElementById('editOverlay');
-        const decommissionOverlay = document.getElementById('decommissionOverlay');
-        
+        const deleteOverlay = document.getElementById('deleteOverlay');
         const galleryGrid = document.getElementById('galleryGrid');
-        const paginationContainer = document.getElementById('pagination');
-        
-        let currentPage = 1;
-        const itemsPerPage = 12;
-        let activeEditId = null;
+        const confirmBtn = document.getElementById('confirmBtn');
+        const deleteConfirmBtn = document.getElementById('deleteConfirmBtn');
+
+        let itemPendingDeletion = null;
 
         imageInput.addEventListener('change', () => {
             if(imageInput.files[0]) {
@@ -210,89 +112,91 @@
 
         function closeModals() {
             uploadOverlay.classList.add('hidden');
-            editOverlay.classList.add('hidden');
-            decommissionOverlay.classList.add('hidden');
+            deleteOverlay.classList.add('hidden');
             document.body.style.overflow = 'auto';
             imageInput.value = '';
             captionInput.value = '';
+            itemPendingDeletion = null;
         }
 
-        function openDecommissionModal() {
-            decommissionOverlay.classList.remove('hidden');
-            document.body.style.overflow = 'hidden';
-        }
-
-        function executeClear() {
-            localStorage.removeItem('carmenFinal_v2');
-            location.reload();
-        }
-
-        function saveAndDisplay() {
+        async function saveAndDisplay() {
             const file = imageInput.files[0];
             const title = captionInput.value || "Untitled Moment";
             const date = new Date().toLocaleDateString('en-US', { month: 'short', year: 'numeric' });
-            
+
+            confirmBtn.innerText = "ARCHIVING...";
+            confirmBtn.disabled = true;
+
             const reader = new FileReader();
-            reader.onload = (e) => {
-                const savedArt = JSON.parse(localStorage.getItem('carmenFinal_v2')) || [];
-                savedArt.unshift({ id: Date.now(), title, date, image: e.target.result });
-                localStorage.setItem('carmenFinal_v2', JSON.stringify(savedArt));
-                currentPage = 1;
-                loadGallery();
-                closeModals();
-                document.getElementById('gallery').scrollIntoView();
+            reader.onload = async (e) => {
+                const base64Data = e.target.result;
+                try {
+                    const response = await fetch(SCRIPT_URL, {
+                        method: 'POST',
+                        body: JSON.stringify({ image: base64Data, filename: file.name, title: title })
+                    });
+                    const resJson = await response.json();
+
+                    if (resJson.result === "success") {
+                        const savedArt = JSON.parse(localStorage.getItem('museum_v5')) || [];
+                        savedArt.unshift({ id: Date.now(), driveId: resJson.fileId, title, date, image: base64Data });
+                        localStorage.setItem('museum_v5', JSON.stringify(savedArt));
+                        loadGallery();
+                        closeModals();
+                        document.getElementById('gallery').scrollIntoView();
+                    } else { alert("Drive Upload Failed: " + resJson.error); }
+                } catch (err) { alert("Deployment error. Ensure script is set to 'Anyone'."); }
+                finally { confirmBtn.innerText = "CONFIRM"; confirmBtn.disabled = false; }
             };
             reader.readAsDataURL(file);
         }
 
-        function loadGallery() {
-            const savedArt = JSON.parse(localStorage.getItem('carmenFinal_v2')) || [];
-            galleryGrid.innerHTML = '';
+        function openDeleteModal(localId, driveId) {
+            itemPendingDeletion = { localId, driveId };
+            deleteOverlay.classList.remove('hidden');
+            document.body.style.overflow = 'hidden';
             
+            deleteConfirmBtn.onclick = async () => {
+                deleteConfirmBtn.innerText = "REMOVING...";
+                deleteConfirmBtn.disabled = true;
+
+                try {
+                    await fetch(SCRIPT_URL, {
+                        method: 'POST',
+                        body: JSON.stringify({ action: "delete", fileId: driveId })
+                    });
+                } catch (e) { console.error("Drive sync failed."); }
+
+                let savedArt = JSON.parse(localStorage.getItem('museum_v5')) || [];
+                savedArt = savedArt.filter(art => art.id !== localId);
+                localStorage.setItem('museum_v5', JSON.stringify(savedArt));
+                
+                deleteConfirmBtn.innerText = "REMOVE FOREVER";
+                deleteConfirmBtn.disabled = false;
+                loadGallery();
+                closeModals();
+            };
+        }
+
+        function loadGallery() {
+            const savedArt = JSON.parse(localStorage.getItem('museum_v5')) || [];
+            galleryGrid.innerHTML = '';
             if (savedArt.length === 0) {
-                galleryGrid.innerHTML = `
-                    <div class="col-span-full text-center py-24">
-                        <p class="serif italic opacity-30 text-xl md:text-2xl">The gallery is currently empty.</p>
-                        <p class="text-[9px] uppercase tracking-widest text-gray-400 mt-2">Curate a new moment to begin the exhibition.</p>
-                    </div>`;
+                galleryGrid.innerHTML = `<div class="col-span-full text-center py-24"><p class="serif italic opacity-30 text-xl">The gallery is currently empty.</p></div>`;
                 return;
             }
-
-            const paginatedItems = savedArt.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage);
-            paginatedItems.forEach(art => {
+            savedArt.forEach(art => {
                 galleryGrid.innerHTML += `
-                <div class="flex flex-col items-center group">
+                <div class="flex flex-col items-center group relative">
+                    <button onclick="openDeleteModal(${art.id}, '${art.driveId}')" class="delete-trigger" title="Remove piece">✕</button>
                     <div class="frame-container w-full">
                         <img src="${art.image}" class="w-full aspect-square object-cover grayscale-[20%] group-hover:grayscale-0 transition-all duration-700">
                         <div class="brass-plaque">${art.date}</div>
                     </div>
-                    <h4 onclick="openEditModal(${art.id})" class="serif text-lg md:text-xl italic mt-6 md:mt-8 cursor-pointer hover:text-[#b08d57] transition text-center px-2">"${art.title}"</h4>
-                    <p class="text-[7px] tracking-[2px] uppercase opacity-40 md:opacity-0 md:group-hover:opacity-40 transition-opacity mt-2">Edit Entry</p>
+                    <h4 class="serif text-lg italic mt-6 text-center px-2">"${art.title}"</h4>
                 </div>`;
             });
         }
-
-        function openEditModal(id) {
-            const savedArt = JSON.parse(localStorage.getItem('carmenFinal_v2')) || [];
-            const item = savedArt.find(i => i.id === id);
-            if (item) {
-                activeEditId = id;
-                editCaptionInput.value = item.title;
-                editOverlay.classList.remove('hidden');
-                document.body.style.overflow = 'hidden';
-            }
-        }
-
-        document.getElementById('saveEditBtn').onclick = () => {
-            const savedArt = JSON.parse(localStorage.getItem('carmenFinal_v2')) || [];
-            const index = savedArt.findIndex(i => i.id === activeEditId);
-            if (index !== -1) {
-                savedArt[index].title = editCaptionInput.value;
-                localStorage.setItem('carmenFinal_v2', JSON.stringify(savedArt));
-                loadGallery();
-                closeModals();
-            }
-        };
 
         window.onload = loadGallery;
     </script>
