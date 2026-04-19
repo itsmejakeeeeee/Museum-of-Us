@@ -23,18 +23,18 @@
         .reveal { animation: fadeInUp 1.4s ease-out forwards; }
         .delete-trigger { position: absolute; top: -10px; right: -10px; background: white; color: #b91c1c; width: 24px; height: 24px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 10px; opacity: 0; transition: all 0.3s ease; box-shadow: 0 4px 10px rgba(0,0,0,0.1); cursor: pointer; border: 1px solid #fee2e2; z-index: 50; }
         .group:hover .delete-trigger { opacity: 1; }
-
-        /* Sync status indicator */
         .sync-indicator { position: fixed; bottom: 20px; right: 20px; z-index: 300; display: flex; align-items: center; gap: 8px; background: white; padding: 8px 16px; border-radius: 20px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); font-size: 10px; text-transform: uppercase; letter-spacing: 1px; }
         .sync-dot { width: 8px; height: 8px; border-radius: 50%; }
         .sync-dot.synced { background: #22c55e; }
         .sync-dot.syncing { background: #f59e0b; animation: pulse 1s infinite; }
         .sync-dot.offline { background: #6b7280; }
         @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.5; } }
-
-        /* Upload progress */
         .upload-progress { position: fixed; top: 0; left: 0; right: 0; height: 3px; background: #b08d57; z-index: 400; transform: scaleX(0); transform-origin: left; transition: transform 0.3s; }
         .upload-progress.active { transform: scaleX(1); }
+        .image-preview { max-width: 200px; max-height: 200px; margin: 0 auto 16px; border-radius: 4px; box-shadow: 0 4px 12px rgba(0,0,0,0.15); }
+        @keyframes spin { to { transform: rotate(360deg); } }
+        .spinner { width: 24px; height: 24px; border: 2px solid rgba(255,255,255,0.3); border-top-color: white; border-radius: 50%; animation: spin 0.8s linear infinite; display: inline-block; }
+        .fade-in { animation: fadeInUp 0.3s ease-out forwards; }
     </style>
 </head>
 <body>
@@ -78,21 +78,26 @@
     </section>
 
     <div id="uploadOverlay" class="fixed inset-0 modal-overlay flex items-center justify-center hidden p-4">
-        <div class="bg-white p-8 md:p-12 max-w-md w-full shadow-2xl rounded-sm">
+        <div class="bg-white p-8 md:p-12 max-w-md w-full shadow-2xl rounded-sm fade-in">
             <h3 class="serif text-3xl md:text-4xl mb-2 italic text-center">New Entry</h3>
-            <p class="text-[9px] uppercase tracking-widest text-center text-gray-400 mb-8 mb-10">Adding to Carmen's Collection</p>
-            <input type="text" id="captionInput" placeholder="Memory Title..." class="w-full border-b border-gray-200 py-4 mb-10 focus:outline-none serif text-xl md:text-2xl bg-transparent focus:border-[#b08d57]">
+            <p class="text-[9px] uppercase tracking-widest text-center text-gray-400 mb-6">Adding to Carmen's Collection</p>
+            <img id="imagePreview" class="image-preview hidden" alt="Preview">
+            <div id="uploadStatus" class="hidden text-center mb-4">
+                <div class="spinner mx-auto mb-2 border-[#b08d57] border-t-[#b08d57]"></div>
+                <p id="statusText" class="text-[9px] uppercase tracking-widest text-gray-500"></p>
+            </div>
+            <input type="text" id="captionInput" placeholder="Memory Title..." class="w-full border-b border-gray-200 py-4 mb-6 focus:outline-none serif text-xl md:text-2xl bg-transparent focus:border-[#b08d57]">
             <div class="flex space-x-4">
                 <button id="confirmBtn" onclick="saveAndDisplay()" class="flex-1 bg-[#1a1a1a] text-white py-4 text-[10px] font-bold uppercase tracking-widest hover:bg-[#b08d57] transition disabled:opacity-50">Confirm</button>
-                <button onclick="closeModals()" class="flex-1 bg-gray-100 py-4 text-[10px] font-bold uppercase tracking-widest text-gray-500">Discard</button>
+                <button id="discardBtn" onclick="closeModals()" class="flex-1 bg-gray-100 py-4 text-[10px] font-bold uppercase tracking-widest text-gray-500 hover:bg-gray-200 transition">Discard</button>
             </div>
         </div>
     </div>
 
     <div id="deleteOverlay" class="fixed inset-0 modal-overlay flex items-center justify-center hidden p-4">
-        <div class="bg-white p-8 md:p-12 max-w-md w-full shadow-2xl rounded-sm border-t-4 border-red-700">
+        <div class="bg-white p-8 md:p-12 max-w-md w-full shadow-2xl rounded-sm border-t-4 border-red-700 fade-in">
             <h3 class="serif text-3xl mb-2 italic text-center">Remove Piece?</h3>
-            <p class="text-[9px] uppercase tracking-widest text-center text-gray-400 mb-8">This will delete from the Archive and Google Drive</p>
+            <p class="text-[9px] uppercase tracking-widest text-center text-gray-400 mb-8">This will delete from the Archive and Cloud</p>
             <div class="flex space-x-4 mt-8">
                 <button id="deleteConfirmBtn" class="flex-1 bg-red-900 text-white py-4 text-[10px] font-bold uppercase tracking-widest hover:bg-red-800 transition">Remove Forever</button>
                 <button onclick="closeModals()" class="flex-1 bg-gray-100 py-4 text-[10px] font-bold uppercase tracking-widest text-gray-500">Keep It</button>
@@ -100,7 +105,10 @@
         </div>
     </div>
 
-    <!-- Sync Status Indicator -->
+    <div id="successToast" class="fixed top-24 left-1/2 transform -translate-x-1/2 bg-green-600 text-white px-6 py-3 rounded-lg shadow-lg z-500 hidden transition-opacity duration-300">
+        <span id="toastText">Archived successfully!</span>
+    </div>
+
     <div id="syncIndicator" class="sync-indicator">
         <div id="syncDot" class="sync-dot synced"></div>
         <span id="syncText">Synced</span>
@@ -112,40 +120,66 @@
     </footer>
 
     <script>
-        // Supabase Configuration
         const SUPABASE_URL = 'https://ugwtsdhgqzrzdeikqdys.supabase.co';
         const SUPABASE_ANON_KEY = 'sb_publishable_LdqFtB0dldTjIzmZWp2E3g_UHr56MzS';
-        const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzActcF77pRD63YBeLucpdC8Slz2eVsrQpowNS_bOJVdGDtAwMX6FghQ5XeaA7jPSl2hg/exec";
 
-        // Initialize Supabase
         let supabase = null;
         let isOnline = navigator.onLine;
+        let pendingImageData = null;
+        let isUploading = false;
 
-        // DOM Elements
         const imageInput = document.getElementById('imageInput');
         const captionInput = document.getElementById('captionInput');
+        const imagePreview = document.getElementById('imagePreview');
         const uploadOverlay = document.getElementById('uploadOverlay');
         const deleteOverlay = document.getElementById('deleteOverlay');
         const galleryGrid = document.getElementById('galleryGrid');
         const confirmBtn = document.getElementById('confirmBtn');
+        const discardBtn = document.getElementById('discardBtn');
         const deleteConfirmBtn = document.getElementById('deleteConfirmBtn');
         const uploadProgress = document.getElementById('uploadProgress');
         const syncDot = document.getElementById('syncDot');
         const syncText = document.getElementById('syncText');
+        const uploadStatus = document.getElementById('uploadStatus');
+        const statusText = document.getElementById('statusText');
+        const successToast = document.getElementById('successToast');
+        const toastText = document.getElementById('toastText');
 
         let itemPendingDeletion = null;
-        let isSyncing = false;
 
-        // Initialize Supabase Client
+        function showToast(message, duration = 3000) {
+            toastText.textContent = message;
+            successToast.classList.remove('hidden');
+            successToast.style.opacity = '1';
+            setTimeout(() => {
+                successToast.style.opacity = '0';
+                setTimeout(() => successToast.classList.add('hidden'), 300);
+            }, duration);
+        }
+
+        function setButtonsEnabled(enabled) {
+            confirmBtn.disabled = !enabled;
+            discardBtn.style.pointerEvents = enabled ? 'auto' : 'none';
+            discardBtn.style.opacity = enabled ? '1' : '0.5';
+        }
+
+        function showUploadStatus(show, text = '') {
+            if (show) {
+                uploadStatus.classList.remove('hidden');
+                statusText.textContent = text;
+            } else {
+                uploadStatus.classList.add('hidden');
+            }
+        }
+
         async function initSupabase() {
             try {
                 supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
                 updateSyncStatus('syncing', 'Connecting...');
 
-                // Test connection
                 const { data, error } = await supabase.from('gallery').select('id').limit(1);
                 if (error && error.code !== 'PGRST204') {
-                    console.warn('Supabase table not ready, will retry...');
+                    console.warn('Supabase table not ready:', error.message);
                     updateSyncStatus('offline', 'Setup Required');
                     return false;
                 }
@@ -159,17 +193,15 @@
             }
         }
 
-        // Update sync status UI
         function updateSyncStatus(status, text) {
             syncDot.className = 'sync-dot ' + status;
             syncText.textContent = text;
         }
 
-        // Online/Offline detection
         window.addEventListener('online', () => {
             isOnline = true;
             updateSyncStatus('syncing', 'Reconnecting...');
-            loadGallery(); // Re-sync when back online
+            loadGallery();
         });
 
         window.addEventListener('offline', () => {
@@ -177,30 +209,28 @@
             updateSyncStatus('offline', 'Offline');
         });
 
-        // Upload progress helper
         function showUploadProgress(show) {
             uploadProgress.classList.toggle('active', show);
         }
 
-        // Sync to Supabase
         async function syncToSupabase(artwork) {
             if (!supabase || !isOnline) return false;
 
             try {
                 const { data, error } = await supabase
                     .from('gallery')
-                    .insert([{
+                    .upsert([{
                         id: artwork.id,
                         title: artwork.title,
                         date: artwork.date,
                         image_url: artwork.image,
                         drive_id: artwork.driveId || null,
                         created_at: new Date().toISOString()
-                    }])
+                    }], { onConflict: 'id' })
                     .select()
                     .single();
 
-                if (error && error.code !== '23505') { // Ignore duplicate key errors
+                if (error) {
                     console.warn('Supabase sync error:', error);
                     return false;
                 }
@@ -211,7 +241,6 @@
             }
         }
 
-        // Load from Supabase
         async function loadFromSupabase() {
             if (!supabase || !isOnline) return null;
 
@@ -229,7 +258,6 @@
             }
         }
 
-        // Delete from Supabase
         async function deleteFromSupabase(id) {
             if (!supabase || !isOnline) return false;
 
@@ -245,22 +273,16 @@
             }
         }
 
-        // Merge local and cloud data
         async function getMergedGallery() {
             const localData = JSON.parse(localStorage.getItem('museum_v5')) || [];
-
-            // Try to get cloud data
             const cloudData = await loadFromSupabase();
 
             if (!cloudData || cloudData.length === 0) {
-                // No cloud data, use local
                 return localData;
             }
 
-            // Merge and deduplicate
             const mergedMap = new Map();
 
-            // Add cloud data first (source of truth)
             cloudData.forEach(item => {
                 mergedMap.set(item.id, {
                     id: item.id,
@@ -272,102 +294,110 @@
                 });
             });
 
-            // Add local items that aren't in cloud
             localData.forEach(item => {
                 if (!mergedMap.has(item.id)) {
                     mergedMap.set(item.id, { ...item, synced: false });
                 }
             });
 
-            // Sort by id descending (newest first)
             const merged = Array.from(mergedMap.values())
                 .sort((a, b) => b.id - a.id);
 
-            // Update local storage with merged data
             localStorage.setItem('museum_v5', JSON.stringify(merged));
 
             return merged;
         }
 
-        imageInput.addEventListener('change', () => {
-            if(imageInput.files[0]) {
+        imageInput.addEventListener('change', (e) => {
+            if(e.target.files[0]) {
+                const file = e.target.files[0];
+
+                if (isUploading) return;
+
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    pendingImageData = e.target.result;
+                    imagePreview.src = pendingImageData;
+                    imagePreview.classList.remove('hidden');
+                };
+                reader.readAsDataURL(file);
                 uploadOverlay.classList.remove('hidden');
                 document.body.style.overflow = 'hidden';
+                captionInput.focus();
             }
         });
 
         function closeModals() {
+            if (isUploading) return;
             uploadOverlay.classList.add('hidden');
             deleteOverlay.classList.add('hidden');
             document.body.style.overflow = 'auto';
             imageInput.value = '';
             captionInput.value = '';
+            imagePreview.src = '';
+            imagePreview.classList.add('hidden');
+            showUploadStatus(false);
+            pendingImageData = null;
             itemPendingDeletion = null;
+            setButtonsEnabled(true);
+            confirmBtn.innerHTML = 'Confirm';
         }
 
         async function saveAndDisplay() {
-            const file = imageInput.files[0];
-            const title = captionInput.value || "Untitled Moment";
+            if (!pendingImageData || isUploading) return;
+
+            const title = captionInput.value.trim() || "Untitled Moment";
             const date = new Date().toLocaleDateString('en-US', { month: 'short', year: 'numeric' });
 
-            confirmBtn.innerText = "ARCHIVING...";
-            confirmBtn.disabled = true;
+            isUploading = true;
+            confirmBtn.innerHTML = '<span class="spinner"></span>';
+            setButtonsEnabled(false);
             showUploadProgress(true);
+            showUploadStatus(true, 'Preparing...');
             updateSyncStatus('syncing', 'Uploading...');
 
-            const reader = new FileReader();
-            reader.onload = async (e) => {
-                const base64Data = e.target.result;
-                const artworkId = Date.now();
-                let driveId = null;
+            const artworkId = Date.now();
 
-                try {
-                    // Try to upload to Google Drive first
-                    try {
-                        const response = await fetch(SCRIPT_URL, {
-                            method: 'POST',
-                            body: JSON.stringify({ image: base64Data, filename: file.name, title: title })
-                        });
-                        const resJson = await response.json();
-                        if (resJson.result === "success") {
-                            driveId = resJson.fileId;
-                        }
-                    } catch (driveErr) {
-                        console.warn('Google Drive upload skipped:', driveErr);
-                    }
+            try {
+                showUploadStatus(true, 'Saving locally...');
 
-                    // Save to local storage
-                    const savedArt = JSON.parse(localStorage.getItem('museum_v5')) || [];
-                    const newArt = {
-                        id: artworkId,
-                        driveId: driveId,
-                        title: title,
-                        date: date,
-                        image: base64Data,
-                        synced: false
-                    };
-                    savedArt.unshift(newArt);
-                    localStorage.setItem('museum_v5', JSON.stringify(savedArt));
+                const savedArt = JSON.parse(localStorage.getItem('museum_v5')) || [];
+                const newArt = {
+                    id: artworkId,
+                    driveId: null,
+                    title: title,
+                    date: date,
+                    image: pendingImageData,
+                    synced: false
+                };
+                savedArt.unshift(newArt);
+                localStorage.setItem('museum_v5', JSON.stringify(savedArt));
 
-                    // Sync to Supabase
-                    await syncToSupabase(newArt);
+                showUploadStatus(true, 'Syncing to cloud...');
+                await syncToSupabase(newArt);
 
-                    updateSyncStatus('synced', 'Synced');
-                    loadGallery();
-                    closeModals();
-                    document.getElementById('gallery').scrollIntoView();
-                } catch (err) {
-                    console.error('Save error:', err);
-                    updateSyncStatus('offline', 'Saved Locally');
-                    loadGallery();
-                    closeModals();
-                } finally {
-                    confirmBtn.innerText = "CONFIRM";
-                    confirmBtn.disabled = false;
-                    showUploadProgress(false);
-                }
-            };
-            reader.readAsDataURL(file);
+                showToast('Archived successfully!');
+                updateSyncStatus('synced', 'Synced');
+                await loadGallery();
+                closeModals();
+
+                setTimeout(() => {
+                    document.getElementById('gallery').scrollIntoView({ behavior: 'smooth' });
+                }, 100);
+
+            } catch (err) {
+                console.error('Save error:', err);
+                showToast('Saved locally - will sync later');
+                updateSyncStatus('offline', 'Saved Locally');
+                await loadGallery();
+                closeModals();
+            } finally {
+                isUploading = false;
+                confirmBtn.innerHTML = 'Confirm';
+                setButtonsEnabled(true);
+                showUploadProgress(false);
+                showUploadStatus(false);
+            }
         }
 
         function openDeleteModal(localId, driveId) {
@@ -376,38 +406,30 @@
             document.body.style.overflow = 'hidden';
 
             deleteConfirmBtn.onclick = async () => {
-                deleteConfirmBtn.innerText = "REMOVING...";
+                deleteConfirmBtn.innerHTML = '<span class="spinner"></span>';
                 deleteConfirmBtn.disabled = true;
                 updateSyncStatus('syncing', 'Removing...');
                 showUploadProgress(true);
 
                 try {
-                    // Try to delete from Google Drive
-                    try {
-                        await fetch(SCRIPT_URL, {
-                            method: 'POST',
-                            body: JSON.stringify({ action: "delete", fileId: driveId })
-                        });
-                    } catch (e) { console.warn("Drive sync failed."); }
-
-                    // Delete from Supabase
                     await deleteFromSupabase(itemPendingDeletion.localId);
 
-                    // Delete from local storage
                     let savedArt = JSON.parse(localStorage.getItem('museum_v5')) || [];
                     savedArt = savedArt.filter(art => art.id !== itemPendingDeletion.localId);
                     localStorage.setItem('museum_v5', JSON.stringify(savedArt));
 
+                    showToast('Removed from archive');
                     updateSyncStatus('synced', 'Synced');
                 } catch (err) {
                     console.error('Delete error:', err);
+                    showToast('Removed locally');
                     updateSyncStatus('offline', 'Removed Locally');
                 }
 
-                deleteConfirmBtn.innerText = "REMOVE FOREVER";
+                deleteConfirmBtn.innerHTML = 'Remove Forever';
                 deleteConfirmBtn.disabled = false;
                 showUploadProgress(false);
-                loadGallery();
+                await loadGallery();
                 closeModals();
             };
         }
@@ -415,33 +437,35 @@
         async function loadGallery() {
             updateSyncStatus('syncing', 'Syncing...');
 
-            const gallery = await getMergedGallery();
+            try {
+                const gallery = await getMergedGallery();
 
-            galleryGrid.innerHTML = '';
-            if (gallery.length === 0) {
-                galleryGrid.innerHTML = `<div class="col-span-full text-center py-24"><p class="serif italic opacity-30 text-xl">The gallery is currently empty.</p></div>`;
-                updateSyncStatus('synced', 'Empty Gallery');
-                return;
+                galleryGrid.innerHTML = '';
+                if (gallery.length === 0) {
+                    galleryGrid.innerHTML = `<div class="col-span-full text-center py-24"><p class="serif italic opacity-30 text-xl">The gallery is currently empty.</p></div>`;
+                    updateSyncStatus('synced', 'Empty Gallery');
+                    return;
+                }
+
+                gallery.forEach(art => {
+                    galleryGrid.innerHTML += `
+                    <div class="flex flex-col items-center group relative">
+                        <button onclick="openDeleteModal(${art.id}, '${art.driveId || ''}')" class="delete-trigger" title="Remove piece">X</button>
+                        <div class="frame-container w-full">
+                            <img src="${art.image}" class="w-full aspect-square object-cover grayscale-[20%] group-hover:grayscale-0 transition-all duration-700" loading="lazy" alt="${art.title}" onerror="this.style.display='none'">
+                            <div class="brass-plaque">${art.date}</div>
+                        </div>
+                        <h4 class="serif text-lg italic mt-6 text-center px-2">"${art.title}"</h4>
+                    </div>`;
+                });
+
+                updateSyncStatus('synced', 'Synced');
+            } catch (err) {
+                console.error('Load gallery error:', err);
+                updateSyncStatus('offline', 'Load Failed');
             }
-
-            gallery.forEach(art => {
-                const deleteBtn = `<button onclick="openDeleteModal(${art.id}, '${art.driveId || ''}')" class="delete-trigger" title="Remove piece">✕</button>`;
-
-                galleryGrid.innerHTML += `
-                <div class="flex flex-col items-center group relative">
-                    ${deleteBtn}
-                    <div class="frame-container w-full">
-                        <img src="${art.image}" class="w-full aspect-square object-cover grayscale-[20%] group-hover:grayscale-0 transition-all duration-700" loading="lazy" onerror="this.src='data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 200 200%22><rect fill=%22%23f0ede4%22 width=%22200%22 height=%22200%22/><text x=%2250%%22 y=%2250%%22 text-anchor=%22middle%22 dy=%22.3em%22 fill=%22%23b08d57%22 font-family=%22serif%22 font-size=%2214%22>Image unavailable</text></svg>'">
-                        <div class="brass-plaque">${art.date}</div>
-                    </div>
-                    <h4 class="serif text-lg italic mt-6 text-center px-2">"${art.title}"</h4>
-                </div>`;
-            });
-
-            updateSyncStatus('synced', 'Synced');
         }
 
-        // Subscribe to real-time changes
         async function subscribeToChanges() {
             if (!supabase) return;
 
@@ -452,7 +476,7 @@
                         { event: '*', schema: 'public', table: 'gallery' },
                         (payload) => {
                             console.log('Real-time update received:', payload);
-                            loadGallery(); // Refresh gallery on any change
+                            loadGallery();
                         }
                     )
                     .subscribe();
@@ -461,7 +485,6 @@
             }
         }
 
-        // Initialize on page load
         window.onload = async () => {
             await initSupabase();
             await loadGallery();
